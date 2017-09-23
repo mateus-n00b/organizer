@@ -3,12 +3,12 @@
 # de acordo com sua extensao movendo-os para pastas adequadas.
 #
 # Mateus, Agosto 2016
-# 
-# Versao 1.0 
-# 
+#
+# Versao 1.0
+#
 # Licenca GPL
 # TODO: Determinar as extensoes de forma automatica
-# 
+#
 # Versao 1.1
 #
 # Mateus, Agosto 2016
@@ -22,34 +22,36 @@ echo -e "\n	    #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	    #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#\n"
 ext=""
 CONT=0
+temp="$(tempfile)"
 
 read -p "Diretorio a ser organizado: " or_dir
-[ -z "$or_dir" -o ! -d "$or_dir" ] && echo "[!] Invalid path!" && exit 1
+[ -z "$or_dir" -o ! -d "$or_dir" ] && echo "[!] Diretorio Invalido!" && exit 1
 
-#echo ${ext[@]}
 cd "$or_dir"
-ls | grep -Eo '\..*' | sed 's/\.//g' > /tmp/out
+ls | grep -Eo '\..*' | sed 's/\.//g' > "$temp"
 
+# List the extensions of the files
 while read row
-do	
+do
 	if ! grep "$row" <<< "${ext[@]}" &> /dev/null
-	then	
+	then
 		ext[$cont]="$row"
 		let cont++
-	fi	
-done < /tmp/out
+	fi
+done < "$temp"
 
+
+# Sort the files
 for x in *
 do
-  for i in ${ext[@]}
+  for i in "${ext[@]}"
   do
   	if grep "$i" <<< "$x" &> /dev/null
-	then
-		[ -d $i ] && mv *."$i" "$i" &> /dev/null|| mkdir "$i" &> /dev/null
-		echo "[+] Arquivo $x movido para $(pwd)/$i" 
-	else
-		echo "[-] Erro ao mover $x!"
-	fi
+		then
+					mkdir "$i" &> /dev/null
+					mv *."$i" "$i" &> /dev/null
+					echo "[+] Arquivo $x movido para $(pwd)/$i"
+		fi
    done
 done
-rm /tmp/out &> /dev/null	
+rm "$temp" &> /dev/null
